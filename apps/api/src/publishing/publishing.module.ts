@@ -4,7 +4,8 @@ import { PublishingService } from './publishing.service.js';
 import { PublishingProcessor } from './publishing.processor.js';
 import { PublishingScheduler } from './publishing.scheduler.js';
 import { PublishingController } from './publishing.controller.js';
-import { PlatformDispatcher, StubPlatformDispatcher } from './platforms/platform-dispatcher.js';
+import { PlatformDispatcher } from './platforms/platform-dispatcher.js';
+import { RouterPlatformDispatcher } from './platforms/router.dispatcher.js';
 import { PUBLISHING_QUEUE } from './publishing.types.js';
 
 @Module({
@@ -14,7 +15,7 @@ import { PUBLISHING_QUEUE } from './publishing.types.js';
     PublishingService,
     PublishingProcessor,
     PublishingScheduler,
-    { provide: PlatformDispatcher, useClass: StubPlatformDispatcher },
+    { provide: PlatformDispatcher, useClass: RouterPlatformDispatcher },
   ],
   exports: [PublishingService],
 })

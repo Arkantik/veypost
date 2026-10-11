@@ -35,6 +35,7 @@ export class PublishingProcessor extends WorkerHost {
         platform: connectedAccounts.platform,
         accessToken: connectedAccounts.accessToken,
         refreshToken: connectedAccounts.refreshToken,
+        platformAccountId: connectedAccounts.platformAccountId,
       })
       .from(postTargets)
       .innerJoin(posts, eq(postTargets.postId, posts.id))
@@ -55,6 +56,7 @@ export class PublishingProcessor extends WorkerHost {
         content: row.content,
         accessToken: row.accessToken,
         refreshToken: row.refreshToken,
+        platformAccountId: row.platformAccountId,
       });
       await db.update(postTargets).set({
         status: 'published',

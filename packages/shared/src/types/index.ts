@@ -122,3 +122,24 @@ export interface Post {
 export interface PostWithTargets extends Post {
   targets: PostTarget[];
 }
+
+export const ErrorKind = {
+  RateLimited: 'rate_limited',
+  AuthExpired: 'auth_expired',
+  Validation: 'validation',
+  DuplicateContent: 'duplicate_content',
+  ServerError: 'server_error',
+  MediaProcessing: 'media_processing',
+  Unsupported: 'unsupported',
+  Network: 'network',
+  Unknown: 'unknown',
+} as const;
+
+export type ErrorKind = (typeof ErrorKind)[keyof typeof ErrorKind];
+
+export function isRetryableError(kind: ErrorKind): boolean {
+  return kind === ErrorKind.RateLimited
+    || kind === ErrorKind.ServerError
+    || kind === ErrorKind.MediaProcessing
+    || kind === ErrorKind.Network;
+}
