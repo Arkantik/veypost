@@ -11,41 +11,55 @@ import type { IconSvgElement } from '@hugeicons/react';
 import type { SocialPlatform } from '@veypost/shared';
 
 export const PLATFORM_LABEL: Record<SocialPlatform, string> = {
-  x: 'X',
   bluesky: 'Bluesky',
-  linkedin: 'LinkedIn',
+  discord: 'Discord',
   facebook: 'Facebook',
   instagram: 'Instagram',
+  linkedin: 'LinkedIn',
   threads: 'Threads',
-  discord: 'Discord',
+  x: 'X',
 };
 
 export const PLATFORM_COLOR: Record<SocialPlatform, string> = {
-  x: 'var(--color-foreground)',
   bluesky: '#1d9bf0',
-  linkedin: '#2867b2',
+  discord: '#5865f2',
   facebook: '#1877f2',
   instagram: '#e1306c',
+  linkedin: '#2867b2',
   threads: '#a8a8a8',
-  discord: '#5865f2',
+  x: 'var(--color-foreground)',
 };
 
 export const PLATFORM_BG: Record<SocialPlatform, string> = {
-  x: '#0f0f0f',
   bluesky: '#1d9bf0',
-  linkedin: '#2867b2',
+  discord: '#5865f2',
   facebook: '#1877f2',
   instagram: '#e1306c',
+  linkedin: '#2867b2',
   threads: '#a8a8a8',
-  discord: '#5865f2',
+  x: '#0f0f0f',
+};
+
+export const PLATFORM_LIMIT: Record<SocialPlatform, number> = {
+  bluesky: 300,
+  discord: 2000,
+  facebook: 63206,
+  instagram: 2200,
+  linkedin: 3000,
+  threads: 500,
+  x: 280,
 };
 
 export const PLATFORM_ICON: Record<SocialPlatform, IconSvgElement> = {
-  x: NewTwitterIcon,
   bluesky: BlueskyIcon,
-  linkedin: Linkedin01Icon,
+  discord: DiscordIcon,
   facebook: Facebook01Icon,
   instagram: InstagramIcon,
+  linkedin: Linkedin01Icon,
   threads: ThreadsIcon,
-  discord: DiscordIcon,
+  x: NewTwitterIcon,
 };
+
+export const ALL_PLATFORMS = Object.keys(PLATFORM_LABEL) as SocialPlatform[];
+
+export const COMING_SOON = new Set<SocialPlatform>(['bluesky']);

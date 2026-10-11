@@ -1,20 +1,8 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Card } from '~/components/ui/card';
 import { Button } from '~/components/ui/button';
-import { PLATFORM_ICON, PLATFORM_COLOR, PLATFORM_LABEL } from '~/lib/platforms';
+import { PLATFORM_ICON, PLATFORM_COLOR, PLATFORM_LABEL, ALL_PLATFORMS, COMING_SOON } from '~/lib/platforms';
 import type { SocialPlatform } from '@veypost/shared';
-
-const PLATFORMS: SocialPlatform[] = [
-  'x',
-  'linkedin',
-  'facebook',
-  'instagram',
-  'threads',
-  'discord',
-  'bluesky',
-];
-
-const COMING_SOON = new Set<SocialPlatform>(['bluesky']);
 
 interface Props {
   workspaceId: string;
@@ -32,7 +20,7 @@ export function AddAccountSection({ workspaceId, onOpenDiscord }: Props) {
     <Card className="p-4">
       <p className="mb-3 text-sm font-semibold">Connect an account</p>
       <div className="flex flex-wrap gap-2">
-        {PLATFORMS.map((p) => {
+        {ALL_PLATFORMS.map((p) => {
           const soon = COMING_SOON.has(p);
           const color = p === 'x' ? '#0f0f0f' : PLATFORM_COLOR[p];
           return (
