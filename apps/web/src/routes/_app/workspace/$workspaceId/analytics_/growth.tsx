@@ -37,7 +37,7 @@ function dateLabel(range: AnalyticsRange): string {
   const start = new Date(end);
   start.setDate(start.getDate() - days);
   const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return `${fmt(start)} â€“ ${fmt(end)}`;
+  return `${fmt(start)} - ${fmt(end)}`;
 }
 
 function FollowerGrowthPage() {
@@ -81,7 +81,9 @@ function FollowerGrowthPage() {
 
       <div>
         <p className="mb-1 text-sm font-semibold">All accounts</p>
-        <p className="mb-3 text-xs text-muted-foreground">Combined growth for the selected period</p>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Combined growth for the selected period
+        </p>
         <Card className="overflow-hidden p-4">
           {isLoading ? (
             <Skeleton className="h-45 w-full" />

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { cn } from '~/lib/utils';
 import { useCurrentUser } from '~/hooks/use-session';
@@ -17,11 +17,6 @@ import { DashboardOnboarding } from '~/components/dashboard/dashboard-onboarding
 import { DashboardComposer } from '~/components/dashboard/dashboard-composer';
 import { DashboardAccountsWidget } from '~/components/dashboard/dashboard-accounts-widget';
 import { DashboardPlatformStats } from '~/components/dashboard/dashboard-platform-stats';
-import {
-  DashboardDevToggle,
-  MOCK_DASHBOARD_DATA,
-  type DevState,
-} from '~/components/dashboard/dashboard-dev-toggle';
 
 function AccountsWidgetSkeleton() {
   return (
@@ -40,14 +35,11 @@ function DashboardPage() {
   const { workspaceId } = Route.useParams();
   const user = useCurrentUser();
   const workspace = useWorkspace();
-  const { data: apiData, isLoading: apiLoading } = useDashboardSummary(workspaceId);
+  const { data, isLoading } = useDashboardSummary(workspaceId);
   const { data: accounts, isLoading: accountsLoading } = useConnectedAccounts(workspaceId);
   const { data: platformData, isLoading: platformLoading } = usePlatformSummary(workspaceId);
 
   const composerRef = useRef<HTMLTextAreaElement>(null);
-  const [devState, setDevState] = useState<DevState>('api');
-  const data = devState === 'api' ? apiData : MOCK_DASHBOARD_DATA[devState];
-  const isLoading = devState === 'api' ? apiLoading : false;
   const hasAccounts = data?.hasConnectedAccounts ?? false;
 
   const hasActivity =
@@ -69,31 +61,28 @@ function DashboardPage() {
   ];
 
   return (
-    <>
-      <div className="space-y-6">
-        <DashboardGreeting user={user} hasAccounts={hasAccounts} />
-        <DashboardStatTiles data={data?.postStats} isLoading={isLoading} />
-        {!hasAccounts && !isLoading && <DashboardNoAccounts workspaceId={workspaceId} />}
-        {(hasAccounts || isLoading) && (
-          accountsLoading ? (
-            <AccountsWidgetSkeleton />
-          ) : (
-            accounts && <DashboardAccountsWidget accounts={accounts} workspaceId={workspaceId} />
-          )
-        )}
-        {showOnboarding && <DashboardOnboarding steps={onboardingSteps} />}
-        {showComposer && <DashboardComposer ref={composerRef} />}
-        <div className={cn('grid gap-6', showUpcoming && 'regular:grid-cols-[1fr_360px]')}>
-          <DashboardRecentFeed posts={data?.recentPosts ?? []} isLoading={isLoading} />
-          {showUpcoming && (
-            <DashboardUpcoming posts={data?.upcomingPosts ?? []} isLoading={isLoading} />
-          )}
-        </div>
-        {(hasAccounts || isLoading) && (
-          <DashboardPlatformStats items={platformData ?? []} isLoading={platformLoading || isLoading} />
+    <div className="space-y-6">
+      <DashboardGreeting user={user} hasAccounts={hasAccounts} />
+      <DashboardStatTiles data={data?.postStats} isLoading={isLoading} />
+      {!hasAccounts && !isLoading && <DashboardNoAccounts workspaceId={workspaceId} />}
+      {(hasAccounts || isLoading) && (
+        accountsLoading ? (
+          <AccountsWidgetSkeleton />
+        ) : (
+          accounts && <DashboardAccountsWidget accounts={accounts} workspaceId={workspaceId} />
+        )
+      )}
+      {showOnboarding && <DashboardOnboarding steps={onboardingSteps} />}
+      {showComposer && <DashboardComposer ref={composerRef} workspaceId={workspaceId} />}
+      <div className={cn('grid gap-6', showUpcoming && 'regular:grid-cols-[1fr_360px]')}>
+        <DashboardRecentFeed posts={data?.recentPosts ?? []} isLoading={isLoading} />
+        {showUpcoming && (
+          <DashboardUpcoming posts={data?.upcomingPosts ?? []} isLoading={isLoading} />
         )}
       </div>
-      <DashboardDevToggle value={devState} onChange={setDevState} />
-    </>
+      {(hasAccounts || isLoading) && (
+        <DashboardPlatformStats items={platformData ?? []} isLoading={platformLoading || isLoading} />
+      )}
+    </div>
   );
 }
