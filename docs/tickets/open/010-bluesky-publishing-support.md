@@ -27,5 +27,4 @@ Bluesky is listed as a supported platform in the product but the dispatcher curr
 Bluesky uses app-password-derived JWTs. `accessToken` = `accessJwt`, `refreshToken` = `refreshJwt`.
 Session refresh: `POST https://bsky.social/xrpc/com.atproto.server.refreshSession` with `Authorization: Bearer <refreshJwt>`.
 Post creation: `POST https://bsky.social/xrpc/com.atproto.repo.createRecord` with `repo` = the user's DID (stored as `platformAccountId`).
-Shoutrrr reference: `BlueskyPublishConnector.php` for the AT Protocol post structure.
 No platform credentials in `getEnv()` are needed — auth is entirely per-account JWT.

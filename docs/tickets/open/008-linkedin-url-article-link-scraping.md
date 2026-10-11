@@ -11,7 +11,7 @@ closed:
 
 ## Problem
 
-When a LinkedIn post contains a URL, the Posts API does not scrape the link or generate a preview card. Without an explicit article payload the post publishes as plain text with no thumbnail, title, or description. Shoutrrr handles this by fetching the target page, reading its Open Graph and Twitter card meta tags, and attaching an article content block to the post body.
+When a LinkedIn post contains a URL, the Posts API does not scrape the link or generate a preview card. Without an explicit article payload the post publishes as plain text with no thumbnail, title, or description. The fix is to fetch the target page before dispatch, read its Open Graph and Twitter card meta tags, and attach an article content block to the post body.
 
 ## Acceptance criteria
 
@@ -23,6 +23,5 @@ When a LinkedIn post contains a URL, the Posts API does not scrape the link or g
 
 ## Notes
 
-Shoutrrr reference: `LinkedInConnector.php` — the OG scraping logic runs before building the post body.
 Only the first URL in the post content is used for the article card.
 This only applies to the LinkedIn dispatcher (`apps/api/src/publishing/platforms/linkedin.dispatcher.ts`).

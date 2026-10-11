@@ -11,7 +11,7 @@ closed:
 
 ## Problem
 
-The publishing processor passes the stored access token directly to the dispatcher without checking expiry. If the token has expired, the dispatch fails and BullMQ retries with the same expired token, consuming all retry attempts without ever succeeding. Shoutrrr solves this by refreshing the token before building the dispatch context, and forcing a second refresh on `AuthExpired` before counting the attempt against the retry budget.
+The publishing processor passes the stored access token directly to the dispatcher without checking expiry. If the token has expired, the dispatch fails and BullMQ retries with the same expired token, consuming all retry attempts without ever succeeding. The fix is to refresh the token before building the dispatch context, and force a second refresh on `AuthExpired` before counting the attempt against the retry budget.
 
 ## Acceptance criteria
 
@@ -20,11 +20,11 @@ The publishing processor passes the stored access token directly to the dispatch
 - [ ] On a successful refresh the new `accessToken`, `refreshToken`, and `tokenExpiresAt` are written back to the `connectedAccounts` row before retrying
 - [ ] On a failed refresh (`refreshTokenForPlatform` throws), the `connectedAccounts` row is set to a `needs_attention` status and the target is marked failed with a clear error message
 - [ ] Platforms that do not use expiring tokens (Discord) skip the refresh check
+- [ ] When a `connectedAccounts` row is set to `needs_attention`, the workspace owner receives an in-app nudge prompting them to reconnect the account
 - [ ] Typecheck passes
 
 ## Notes
 
 `refreshTokenForPlatform` is in `apps/api/src/accounts/platforms/token-refresh.ts`.
 The processor is `apps/api/src/publishing/publishing.processor.ts`.
-Shoutrrr reference: `TokenManager.php` and `PublishPostTarget.php` — the `fresh()` call before building `PublishContext`, and the `onAuthExpired()` retry path.
 Single-use refresh tokens (X, Bluesky) must be written to the DB before any other state is updated to survive interruptions.

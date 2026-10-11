@@ -20,12 +20,14 @@ Posts currently support text only. Social posts routinely include images; withou
 - [ ] A `post_media` table (or a `media` column on `post_targets`) tracks the stored file reference â€” schema change covers both SQLite and PostgreSQL
 - [ ] Files are served from a local path (Docker volume) in dev; an env-based storage adapter allows switching to S3-compatible storage without code changes
 - [ ] Accepted types: JPEG, PNG, WebP, GIF; max size enforced server-side
-- [ ] Platform dispatch clients attach the stored image when calling the platform API
+- [ ] User can add alt text per image in the composer
+- [ ] Alt text is stored alongside the media reference and passed to platform APIs that support it
+- [ ] User can attach a video (MP4, MOV) in the composer; the same storage and dispatch path applies
+- [ ] Platform dispatch clients attach the stored image or video when calling the platform API
 - [ ] Typecheck passes
 
 ## Notes
 
 An in-app image editor is out of scope here.
-Video upload is out of scope for this ticket.
 Storage config (local path or S3 bucket/key) must come from `getEnv()`.
 A `db:migration` skill run is required before this ticket can be closed.
