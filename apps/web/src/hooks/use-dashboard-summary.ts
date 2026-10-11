@@ -5,6 +5,6 @@ export function useDashboardSummary(workspaceId: string | undefined) {
   return useApiQuery<DashboardSummary>(
     ['dashboard', 'summary', workspaceId],
     `/api/v1/dashboard/summary?workspaceId=${workspaceId}`,
-    { enabled: !!workspaceId },
+    { enabled: !!workspaceId, refetchInterval: 60_000 },
   );
 }

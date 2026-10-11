@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Edit01Icon, Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
+import { Edit01Icon, Tick01Icon, Cancel01Icon, Loading03Icon } from '@hugeicons/core-free-icons';
 import { Card } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 import { EmptyState } from '~/components/ui/empty-state';
@@ -21,22 +21,18 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-function StatusBadge({ status }: { status: 'published' | 'failed' }) {
+const STATUS_CONFIG = {
+  published: { icon: Tick01Icon, label: 'Published', className: 'bg-success/10 text-success' },
+  failed: { icon: Cancel01Icon, label: 'Failed', className: 'bg-destructive/10 text-destructive' },
+  publishing: { icon: Loading03Icon, label: 'Publishing…', className: 'bg-muted text-muted-foreground' },
+} as const;
+
+function StatusBadge({ status }: { status: 'publishing' | 'published' | 'failed' }) {
+  const { icon, label, className } = STATUS_CONFIG[status];
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-0.5 rounded-sm px-1.5 py-px text-[11px] font-bold',
-        status === 'published'
-          ? 'bg-success/10 text-success'
-          : 'bg-destructive/10 text-destructive',
-      )}
-    >
-      <HugeiconsIcon
-        icon={status === 'published' ? Tick01Icon : Cancel01Icon}
-        size={14}
-        aria-hidden
-      />
-      {status === 'published' ? 'Published' : 'Failed'}
+    <span className={cn('inline-flex items-center gap-0.5 rounded-sm px-1.5 py-px text-[11px] font-bold', className)}>
+      <HugeiconsIcon icon={icon} size={14} aria-hidden className={status === 'publishing' ? 'animate-spin' : undefined} />
+      {label}
     </span>
   );
 }
@@ -134,7 +130,7 @@ export function DashboardRecentFeed({ posts, isLoading }: Props) {
           </button>
         ))}
       </div>
-      <div className="px-4 pb-4 pt-1">
+      <div className="px-4">
         {isLoading ? (
           <FeedSkeleton />
         ) : visible.length === 0 ? (

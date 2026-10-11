@@ -1,5 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { eq, and, count, gte, inArray, desc, asc } from 'drizzle-orm';
+import { eq, and, count, gte, gt, inArray, desc, asc, sql } from 'drizzle-orm';
 import { sqliteSchema } from '@veypost/db';
 import type { DbClient } from '@veypost/db';
 import type { DashboardSummary, RecentPost, UpcomingPost, SocialPlatform } from '@veypost/shared';
@@ -44,10 +44,10 @@ export class DashboardService {
 
   private async fetchRecentPosts(workspaceId: string): Promise<RecentPost[]> {
     const rows = await this.q
-      .select({ id: posts.id, content: posts.content, status: posts.status, publishedAt: posts.publishedAt })
+      .select({ id: posts.id, content: posts.content, status: posts.status, publishedAt: posts.publishedAt, updatedAt: posts.updatedAt })
       .from(posts)
-      .where(and(eq(posts.workspaceId, workspaceId), inArray(posts.status, ['published', 'failed'])))
-      .orderBy(desc(posts.publishedAt))
+      .where(and(eq(posts.workspaceId, workspaceId), inArray(posts.status, ['publishing', 'published', 'failed'])))
+      .orderBy(desc(sql`COALESCE(${posts.publishedAt}, ${posts.updatedAt})`))
       .limit(5);
 
     if (rows.length === 0) return [];
@@ -56,17 +56,18 @@ export class DashboardService {
     return rows.map((r: any) => ({
       id: r.id,
       content: r.content,
-      status: r.status as 'published' | 'failed',
+      status: r.status as 'publishing' | 'published' | 'failed',
       platforms: platforms.get(r.id) ?? [],
-      publishedAt: r.publishedAt ?? new Date().toISOString(),
+      publishedAt: r.publishedAt ?? r.updatedAt ?? new Date().toISOString(),
     }));
   }
 
   private async fetchUpcomingPosts(workspaceId: string): Promise<UpcomingPost[]> {
+    const now = new Date().toISOString();
     const rows = await this.q
       .select({ id: posts.id, content: posts.content, scheduledAt: posts.scheduledAt })
       .from(posts)
-      .where(and(eq(posts.workspaceId, workspaceId), eq(posts.status, 'scheduled')))
+      .where(and(eq(posts.workspaceId, workspaceId), eq(posts.status, 'scheduled'), gt(posts.scheduledAt, now)))
       .orderBy(asc(posts.scheduledAt))
       .limit(3);
 
