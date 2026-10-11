@@ -39,12 +39,17 @@ export class PublishingScheduler {
 
     this.logger.log(`Enqueueing ${targets.length} target(s) from ${duePosts.length} post(s)`);
 
+    const succeededPostIds = new Set<string>();
     for (const target of targets) {
-      await this.publishingService.enqueueTarget(target.id);
+      try {
+        await this.publishingService.enqueueTarget(target.id);
+        succeededPostIds.add(target.postId);
+      } catch (err) {
+        this.logger.error(`Failed to enqueue target ${target.id}: ${err instanceof Error ? err.message : String(err)}`);
+      }
     }
 
-    const enqueuedPostIds = [...new Set(targets.map((t) => t.postId))];
-    for (const postId of enqueuedPostIds) {
+    for (const postId of succeededPostIds) {
       await db.update(posts).set({ status: 'publishing', updatedAt: now }).where(eq(posts.id, postId));
     }
   }
