@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { eq } from 'drizzle-orm';
@@ -7,8 +7,9 @@ import type { DbClient } from '@veypost/db';
 import { assertMember } from '../workspaces/workspaces.helpers.js';
 import { notFound, badRequest } from '../common/app.exception.js';
 import { PUBLISHING_QUEUE, type PublishJobPayload } from './publishing.types.js';
+import { PlatformDispatcher } from './platforms/platform-dispatcher.js';
 
-const { posts, postTargets } = sqliteSchema;
+const { posts, postTargets, connectedAccounts } = sqliteSchema;
 
 const JOB_OPTIONS = {
   attempts: 3,
@@ -19,17 +20,64 @@ const JOB_OPTIONS = {
 
 @Injectable()
 export class PublishingService {
+  private readonly logger = new Logger(PublishingService.name);
+
   constructor(
     @Inject('DB') private readonly db: DbClient,
     @InjectQueue(PUBLISHING_QUEUE) private readonly queue: Queue<PublishJobPayload>,
+    private readonly dispatcher: PlatformDispatcher,
   ) {}
 
   async enqueueTarget(targetId: string): Promise<void> {
+    await this.queue.add('publish', { postTargetId: targetId }, JOB_OPTIONS);
     await (this.db as any)
       .update(postTargets)
       .set({ status: 'publishing' })
       .where(eq(postTargets.id, targetId));
-    await this.queue.add('publish', { postTargetId: targetId }, JOB_OPTIONS);
+  }
+
+  async publishTargetSync(targetId: string): Promise<void> {
+    const db = this.db as any;
+    const [row] = await db
+      .select({
+        postId: postTargets.postId,
+        content: posts.content,
+        platform: connectedAccounts.platform,
+        accessToken: connectedAccounts.accessToken,
+        refreshToken: connectedAccounts.refreshToken,
+        platformAccountId: connectedAccounts.platformAccountId,
+      })
+      .from(postTargets)
+      .innerJoin(posts, eq(postTargets.postId, posts.id))
+      .innerJoin(connectedAccounts, eq(postTargets.connectedAccountId, connectedAccounts.id))
+      .where(eq(postTargets.id, targetId))
+      .limit(1);
+
+    if (!row) {
+      this.logger.warn(`Target ${targetId} not found, skipping sync publish`);
+      return;
+    }
+
+    try {
+      const result = await this.dispatcher.dispatch({
+        platform: row.platform,
+        content: row.content,
+        accessToken: row.accessToken,
+        refreshToken: row.refreshToken,
+        platformAccountId: row.platformAccountId,
+      });
+      await db.update(postTargets).set({
+        status: 'published',
+        publishedAt: new Date().toISOString(),
+        platformPostId: result.platformPostId ?? null,
+        error: null,
+      }).where(eq(postTargets.id, targetId));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      this.logger.error(`Sync publish failed for target ${targetId}: ${message}`);
+      await db.update(postTargets).set({ status: 'failed', error: message }).where(eq(postTargets.id, targetId));
+    }
+    await this.syncPostStatus(row.postId);
   }
 
   async syncPostStatus(postId: string): Promise<void> {

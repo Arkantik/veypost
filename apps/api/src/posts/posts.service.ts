@@ -6,6 +6,7 @@ import type { PostWithTargets, PostTarget } from '@veypost/shared';
 import type { CreatePostInput, UpdatePostInput } from '@veypost/shared';
 import { assertMember } from '../workspaces/workspaces.helpers.js';
 import { notFound, badRequest } from '../common/app.exception.js';
+import { PublishingService } from '../publishing/publishing.service.js';
 
 const { posts, postTargets, connectedAccounts } = sqliteSchema;
 
@@ -13,7 +14,10 @@ const MUTABLE_STATUSES = ['draft', 'scheduled'] as const;
 
 @Injectable()
 export class PostsService {
-  constructor(@Inject('DB') private readonly db: DbClient) {}
+  constructor(
+    @Inject('DB') private readonly db: DbClient,
+    private readonly publishingService: PublishingService,
+  ) {}
 
   private get q() { return this.db as any; }
 
@@ -65,17 +69,23 @@ export class PostsService {
   }
 
   async create(userId: string, input: CreatePostInput): Promise<PostWithTargets> {
-    const { workspaceId, content, connectedAccountIds, scheduledAt } = input;
+    const { workspaceId, content, connectedAccountIds, scheduledAt, publishNow } = input;
     await assertMember(this.q, workspaceId, userId);
     await this.assertAccountsInWorkspace(connectedAccountIds, workspaceId);
-    const status = scheduledAt ? 'scheduled' : 'draft';
+    const status = publishNow ? 'publishing' : scheduledAt ? 'scheduled' : 'draft';
     const [post] = await this.q
       .insert(posts)
       .values({ workspaceId, authorId: userId, content, status, scheduledAt: scheduledAt ?? null })
       .returning();
-    await this.q.insert(postTargets).values(
-      connectedAccountIds.map((connectedAccountId: string) => ({ postId: post.id, connectedAccountId })),
-    );
+    const inserted: { id: string }[] = await this.q
+      .insert(postTargets)
+      .values(connectedAccountIds.map((connectedAccountId: string) => ({ postId: post.id, connectedAccountId, status })))
+      .returning({ id: postTargets.id });
+    if (publishNow) {
+      for (const { id } of inserted) {
+        await this.publishingService.publishTargetSync(id);
+      }
+    }
     return this.getById(post.id, workspaceId, userId);
   }
 

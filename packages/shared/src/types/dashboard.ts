@@ -9,7 +9,7 @@ export interface DashboardPostStats {
 export interface RecentPost {
   id: string;
   content: string;
-  status: 'published' | 'failed';
+  status: 'publishing' | 'published' | 'failed';
   platforms: SocialPlatform[];
   publishedAt: string;
 }

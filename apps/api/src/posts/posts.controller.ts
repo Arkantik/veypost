@@ -37,7 +37,7 @@ export class PostsController {
   @Post()
   @HttpCode(201)
   create(
-    @Body(new ZodValidationPipe(createPostSchema)) body: { workspaceId: string; content: string; connectedAccountIds: string[]; scheduledAt?: string },
+    @Body(new ZodValidationPipe(createPostSchema)) body: { workspaceId: string; content: string; connectedAccountIds: string[]; scheduledAt?: string; publishNow?: boolean },
     @CurrentUser() user: { id: string },
   ) {
     return this.postsService.create(user.id, body);

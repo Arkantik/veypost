@@ -27,6 +27,7 @@ export const createPostSchema = z.object({
   content: z.string().min(1).max(10000),
   connectedAccountIds: z.array(z.string().min(1)).min(1),
   scheduledAt: z.iso.datetime().optional(),
+  publishNow: z.boolean().optional(),
 });
 
 export type CreatePostInput = z.infer<typeof createPostSchema>;
