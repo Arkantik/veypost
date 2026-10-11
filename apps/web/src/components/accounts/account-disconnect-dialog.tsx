@@ -39,7 +39,7 @@ export function AccountDisconnectDialog({ account, isPending, onConfirm, onClose
             disabled={isPending}
             onClick={() => account && onConfirm(account.id)}
           >
-            {isPending ? 'Disconnectingâ€¦' : 'Disconnect'}
+            {isPending ? 'Disconnecting…' : 'Disconnect'}
           </Button>
         </div>
       </DialogContent>

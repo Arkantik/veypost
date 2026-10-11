@@ -39,7 +39,7 @@ export function SponsorDialog({
               <p className="mt-1 text-xs text-muted-foreground">{t('sponsor.githubDesc')}</p>
             </div>
             <span className="mt-auto text-xs font-medium text-primary">
-              {t('sponsor.githubCta')} â†’
+              {t('sponsor.githubCta')}
             </span>
           </a>
           <a
@@ -54,7 +54,7 @@ export function SponsorDialog({
               <p className="mt-1 text-xs text-muted-foreground">{t('sponsor.stripeDesc')}</p>
             </div>
             <span className="mt-auto text-xs font-medium text-primary">
-              {t('sponsor.stripeCta')} â†’
+              {t('sponsor.stripeCta')}
             </span>
           </a>
         </div>

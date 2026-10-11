@@ -127,7 +127,7 @@ export function IdentityCard({ workspaceId, initialName, initialTimezone, initia
       </CardContent>
       <CardFooter className="gap-2 border-t border-border px-6 py-4">
         <Button type="button" disabled={!isDirty || isBusy} onClick={() => void handleSave()}>
-          {isBusy ? 'Savingâ€¦' : 'Save changes'}
+          {isBusy ? 'Saving…' : 'Save changes'}
         </Button>
         <Button variant="ghost" type="button" onClick={handleReset}>Reset</Button>
       </CardFooter>

@@ -174,7 +174,7 @@ export function TopBar({ onMobileOpen, scrolled }: TopBarProps) {
               aria-hidden
             >
               <span className="flex h-4 w-4 items-center justify-center rounded p-0.5 text-[10px] font-medium leading-none text-muted-foreground">
-                âŒ˜K
+                ⌘K
               </span>
             </span>
           </label>

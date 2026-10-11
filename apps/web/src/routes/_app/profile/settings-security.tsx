@@ -78,7 +78,7 @@ export function SecurityPanel() {
         </CardContent>
         <CardFooter className="border-t border-border px-6 py-4">
           <Button type="button" disabled={!canSubmit || changePassword.isPending} onClick={() => void handleSubmit()}>
-            {changePassword.isPending ? 'Updatingâ€¦' : 'Update password'}
+            {changePassword.isPending ? 'Updating…' : 'Update password'}
           </Button>
         </CardFooter>
       </Card>

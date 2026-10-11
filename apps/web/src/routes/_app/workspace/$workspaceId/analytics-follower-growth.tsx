@@ -18,7 +18,7 @@ function dateRangeLabel(range: AnalyticsRange): string {
   const start = new Date(end);
   start.setDate(start.getDate() - days);
   const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  return `${fmt(start)} â€“ ${fmt(end)}`;
+  return `${fmt(start)} - ${fmt(end)}`;
 }
 
 function GrowthCard({ acc }: { acc: FollowerSeries }) {

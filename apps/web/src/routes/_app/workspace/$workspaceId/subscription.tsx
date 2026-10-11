@@ -48,7 +48,7 @@ function WorkspaceSubscriptionPage() {
               </p>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-[26px] font-bold tabular-nums leading-none">9.99â‚¬</div>
+              <div className="text-[26px] font-bold tabular-nums leading-none">9.99€</div>
               <div className="mt-1 text-xs text-muted-foreground">/ month</div>
             </div>
           </div>
